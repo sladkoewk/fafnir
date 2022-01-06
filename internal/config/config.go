@@ -19,12 +19,25 @@ type Config struct {
 }
 
 type Responses struct {
-	Start string `mapstructure:"start"`
+	EnterEmail        string `mapstructure:"enter_email"`
+	TableExist        string `mapstructure:"table_exist"`
+	UnknownCommand    string `mapstructure:"unknown_command"`
+	RecordSaved       string `mapstructure:"record_saved"`
+	UnknownCategory   string `mapstructure:"unknown_category"`
+	RemovedLastRecord string `mapstructure:"removed_last_record"`
+	CreateSpreadsheet string `mapstructure:"create_spreadsheet"`
+	CreateTable       string `mapstructure:"create_table"`
 }
 
 type Errors struct {
-	Default        string `mapstructure:"default"`
-	InvalidMessage string `mapstructure:"invalid_message"`
+	Default                          string `mapstructure:"default"`
+	InvalidEmail                     string `mapstructure:"invalid_email"`
+	FailedSaveRecord                 string `mapstructure:"failed_save_record"`
+	FailedSaveEmail                  string `mapstructure:"failed_save_email"`
+	FailedSaveSpreadsheet            string `mapstructure:"failed_save_spreadsheet"`
+	FailedCreateSheet                string `mapstructure:"failed_create_sheet"`
+	FailedAuthenticationDriveService string `mapstructure:"failed_authentication_drive_service"`
+	FailedShareDocument              string `mapstructure:"failed_share_document"`
 }
 
 func Init() (*Config, error) {

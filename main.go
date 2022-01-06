@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/fafnir/internal/account"
 	"github.com/fafnir/internal/bot"
 	"github.com/fafnir/internal/config"
+	"github.com/fafnir/internal/googlesheets"
 	"github.com/fafnir/internal/log"
 	"github.com/fafnir/internal/parser"
+	"github.com/fafnir/internal/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -18,8 +23,20 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	telegramBotApi.Debug = true
-	bot := bot.NewBot(telegramBotApi, config.Messages)
+	bolt, err := storage.InitBolt()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	db := storage.NewStorage(bolt)
+	sheetsService, err := googlesheets.GetSheetsService()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	// telegramBotApi.Debug = true
+
+	bot := bot.NewBot(telegramBotApi, config.Messages, db, sheetsService)
+
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
 	updates := telegramBotApi.GetUpdatesChan(updateConfig)
@@ -28,43 +45,38 @@ func main() {
 			continue
 		}
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-		infoLog.Printf("User input: %v", update.Message.Text)
-		switch update.Message.Text {
-		case "/start":
-			// TODO: Создание google-таблицы для ведения финансов или ссылка на существующую
-			msg.Text = "start"
-		case "/table":
-			// TODO: Отобразить ссылку на google-таблицу
-			msg.Text = "table"
-		case "/help":
-			// TODO: Справка по основным командам
-			msg.Text = "help"
-		case "/limits":
-			// TODO: Установка лимита расходов на категорию в месяц
-			msg.Text = "limits"
-		case "/remind":
-			// TODO: Установка напоминания об отложенном деле
-			msg.Text = "remind"
-		case "/auto":
-			// TODO: Настройка автоматического проведения транзакций по расписанию (подписки)
-			msg.Text = "auto"
-		case "/cat":
-			// TODO: Показывает все активные категории, которые заведены в таблице и ключевые слова (синонимы) к ним
-			msg.Text = "cat"
-		case "/bills":
-			// TODO: Показывает все счета, которые заведены в таблице и ключевые слова (синонимы) к ним
-			msg.Text = "bills"
-		case "/today", "/month", "/year":
-			// TODO: Показывает статистику за выбранный период
-			msg.Text = update.Message.Text
-		case "Баланс":
-			// TODO: Баланс
-			msg.Text = "Баланс"
-		default:
-			msg.Text = parser.Recognition(update.Message.Text, bot)
+		infoLog.Printf("Ввод пользователя: %v", update.Message.Text)
+		err = nil
+		err = account.CheckCreateAccount(bot, update.Message)
+		if err == nil {
+			switch update.Message.Text {
+			case "/table":
+				// TODO: Отобразить ссылку на google-таблицу
+			case "/help":
+				// TODO: Справка по основным командам
+			case "/limits":
+				// TODO: Установка лимита расходов на категорию в месяц
+			case "/remind":
+				// TODO: Установка напоминания об отложенном деле
+			case "/auto":
+				// TODO: Настройка автоматического проведения транзакций по расписанию (подписки)
+			case "/cat":
+				// TODO: Показывает все активные категории, которые заведены в таблице и ключевые слова (синонимы) к ним
+			case "/bills":
+				// TODO: Показывает все счета, которые заведены в таблице и ключевые слова (синонимы) к ним
+			case "/today", "/month", "/year":
+				// TODO: Показывает статистику за выбранный период
+			case "Баланс":
+				// TODO: Баланс
+			default:
+				err = parser.Recognition(update.Message.Text, bot)
+			}
 		}
-		if _, err := telegramBotApi.Send(msg); err != nil {
-			errorLog.Fatal(err)
+		if err != nil {
+			msg.Text = fmt.Sprint(err)
+			if _, err := telegramBotApi.Send(msg); err != nil {
+				errorLog.Fatal(err)
+			}
 		}
 	}
 }
