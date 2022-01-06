@@ -27,6 +27,7 @@ type Responses struct {
 	RemovedLastRecord string `mapstructure:"removed_last_record"`
 	CreateSpreadsheet string `mapstructure:"create_spreadsheet"`
 	CreateTable       string `mapstructure:"create_table"`
+	Help              string `mapstructure:"help"`
 }
 
 type Errors struct {

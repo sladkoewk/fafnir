@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/fafnir/internal/account"
+	"github.com/fafnir/internal/action"
 	"github.com/fafnir/internal/bot"
 	"github.com/fafnir/internal/config"
 	"github.com/fafnir/internal/googlesheets"
@@ -47,13 +47,13 @@ func main() {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 		infoLog.Printf("Ввод пользователя: %v", update.Message.Text)
 		err = nil
-		err = account.CheckCreateAccount(bot, update.Message)
+		err = action.CheckCreateAccount(bot, update.Message)
 		if err == nil {
 			switch update.Message.Text {
 			case "/table":
-				// TODO: Отобразить ссылку на google-таблицу
+				err = action.GetSpreadsheet(bot, update.Message)
 			case "/help":
-				// TODO: Справка по основным командам
+				err = action.GetHelp(bot, update.Message)
 			case "/limits":
 				// TODO: Установка лимита расходов на категорию в месяц
 			case "/remind":
