@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Knetic/govaluate"
 	"github.com/fafnir/internal/interpretator/token"
@@ -19,20 +20,23 @@ func isMathExpression(str string) bool {
 	return true
 }
 
-func isDate(str string) bool {
+func isDate(str string) (time.Time, bool) {
+	nowDate := time.Now()
 	switch strings.ToLower(str) {
 	case "вчера":
+		return nowDate.Add(-24 * time.Hour), true
 	case "позавчера":
+		return nowDate.Add(-48 * time.Hour), true
 	case "пн", "вт", "ср", "чт", "пт", "сб", "вс":
-		return true
+		// TODO: Parse weekday
+		return nowDate, true
 	default:
-		// TODO: check format: 12.11
 		if true {
-			return true
+			// TODO: Parse 21.02
+			return nowDate, true
 		}
-		return false
+		return nowDate, true
 	}
-	return false
 }
 
 func Parse(tokens []token.Token) (models.Transaction, error) {
@@ -58,17 +62,18 @@ func Parse(tokens []token.Token) (models.Transaction, error) {
 			} else {
 				transaction.Category = token.Value
 			}
-		}
-		if index == len(tokens) {
-			if isDate(token.Value) {
-
+		} else if index == len(tokens)-1 {
+			date, ok := isDate(token.Value)
+			if ok {
+				transaction.Date = date
 			} else {
-				buffer.WriteString(token.Value)
+				buffer.WriteString(fmt.Sprintf(" %s", token.Value))
 			}
 		} else {
-			buffer.WriteString(token.Value)
+			buffer.WriteString(fmt.Sprintf(" %s", token.Value))
 		}
 	}
-	transaction.Comment = buffer.String()
+	transaction.Comment = strings.TrimSpace(buffer.String())
+	transaction.CommitDate = time.Now()
 	return transaction, nil
 }

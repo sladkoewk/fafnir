@@ -35,7 +35,7 @@ func main() {
 
 	// telegramBotApi.Debug = true
 
-	bot := bot.NewBot(telegramBotApi, config.Messages, db, sheetsService)
+	b := bot.NewBot(telegramBotApi, config.Messages, db, sheetsService)
 
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 30
@@ -47,13 +47,13 @@ func main() {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 		infoLog.Printf("Ввод пользователя: %v", update.Message.Text)
 		err = nil
-		err = action.CheckCreateAccount(bot, update.Message)
+		err = action.CheckCreateAccount(b, update.Message)
 		if err == nil {
 			switch update.Message.Text {
 			case "/table":
-				err = action.GetSpreadsheet(bot, update.Message)
+				err = action.GetSpreadsheet(b, update.Message)
 			case "/help":
-				err = action.GetHelp(bot, update.Message)
+				err = action.GetHelp(b, update.Message)
 			case "/limits":
 				// TODO: Установка лимита расходов на категорию в месяц
 			case "/remind":
@@ -69,7 +69,11 @@ func main() {
 			case "Баланс":
 				// TODO: Баланс
 			default:
-				err = interpretator.GetMessage(bot, update.Message.Text)
+				transaction, err := interpretator.GetTransaction(b, update.Message.Text)
+				if err == nil {
+					infoLog.Printf("ChatID: %v, transaction %+v", update.Message.Chat.ID, transaction)
+					action.AddRecord(b, update.Message.Chat.ID, transaction)
+				}
 			}
 		}
 		if err != nil {

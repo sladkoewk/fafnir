@@ -13,6 +13,7 @@ func Tokenization(text string) []token.Token {
 
 	for index, word := range words {
 		fmt.Printf("index: %v, word: %v\n", index, word)
+		// TODO: Add Type token (expression, word, date) and refactor parser
 		tokens = append(tokens, token.Token{Value: strings.TrimSpace(word), Position: index})
 	}
 
