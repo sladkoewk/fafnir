@@ -7,8 +7,8 @@ import (
 	"github.com/fafnir/internal/bot"
 	"github.com/fafnir/internal/config"
 	"github.com/fafnir/internal/googlesheets"
+	"github.com/fafnir/internal/interpretator"
 	"github.com/fafnir/internal/log"
-	"github.com/fafnir/internal/parser"
 	"github.com/fafnir/internal/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -69,7 +69,7 @@ func main() {
 			case "Баланс":
 				// TODO: Баланс
 			default:
-				err = parser.Recognition(update.Message.Text, bot)
+				err = interpretator.GetMessage(bot, update.Message.Text)
 			}
 		}
 		if err != nil {
