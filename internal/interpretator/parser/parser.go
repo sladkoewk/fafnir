@@ -65,7 +65,7 @@ func Parse(tokens []token.Token) (models.Transaction, error) {
 		} else if index == len(tokens)-1 {
 			date, ok := isDate(token.Value)
 			if ok {
-				transaction.Date = date
+				transaction.Date = date.Format("2006-01-02")
 			} else {
 				buffer.WriteString(fmt.Sprintf(" %s", token.Value))
 			}
@@ -74,6 +74,6 @@ func Parse(tokens []token.Token) (models.Transaction, error) {
 		}
 	}
 	transaction.Comment = strings.TrimSpace(buffer.String())
-	transaction.CommitDate = time.Now()
+	transaction.CommitDate = time.Now().Format("2006-01-02")
 	return transaction, nil
 }

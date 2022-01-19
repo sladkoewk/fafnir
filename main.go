@@ -10,6 +10,7 @@ import (
 	"github.com/fafnir/internal/interpretator"
 	"github.com/fafnir/internal/log"
 	"github.com/fafnir/internal/storage"
+	"github.com/fafnir/models"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -71,6 +72,11 @@ func main() {
 			default:
 				transaction, err := interpretator.GetTransaction(b, update.Message.Text)
 				if err == nil {
+					transaction.Author = fmt.Sprintf("%s %s (%v)", update.Message.From.FirstName, update.Message.From.LastName, update.Message.From.UserName)
+					// TODO: Calc type from category type
+					transaction.Type = models.Expense
+					// TODO: Calc currency from category type
+					transaction.Сurrency = "₽"
 					infoLog.Printf("ChatID: %v, transaction %+v", update.Message.Chat.ID, transaction)
 					action.AddRecord(b, update.Message.Chat.ID, transaction)
 				}

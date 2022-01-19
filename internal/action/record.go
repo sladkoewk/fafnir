@@ -17,15 +17,17 @@ func AddRecord(b *bot.Bot, chatID int64, transaction models.Transaction) error {
 	}
 	var vr sheets.ValueRange
 	value := []interface{}{
-		// transaction.Author,
-		transaction.Comment,
-		transaction.CommitDate,
-		transaction.Price,
+		transaction.Date,
+		transaction.Type,
 		transaction.Category,
-		// transaction.Type,
+		transaction.Price,
+		transaction.Comment,
+		transaction.Author,
+		transaction.CommitDate,
+		transaction.Сurrency,
 	}
 	vr.Values = append(vr.Values, value)
-	_, err = b.SheetsService.Spreadsheets.Values.Append(spreadsheetId, "A2", &vr).InsertDataOption("INSERT_ROWS").ValueInputOption("RAW").Do()
+	_, err = b.SheetsService.Spreadsheets.Values.Append(spreadsheetId, "A2", &vr).InsertDataOption("INSERT_ROWS").ValueInputOption("USER_ENTERED").Do()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve data from sheet. %v", err)
 	}

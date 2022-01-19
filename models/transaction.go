@@ -1,20 +1,19 @@
 package models
 
-import "time"
-
 type Type string
 
 const (
-	Income  Type = "Расход"
-	Expense Type = "Доход"
+	Income  Type = "доход"
+	Expense Type = "расход"
 )
 
 type Transaction struct {
-	Type       Type
 	Comment    string
 	Author     string
 	Category   string
 	Price      float64
-	Date       time.Time
-	CommitDate time.Time
+	Сurrency   string
+	Date       string
+	CommitDate string
+	Type       Type
 }
